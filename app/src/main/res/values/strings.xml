@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Tic_Tac_Toe_1</string>
+    <string name="choose_txt">Choose :</string>
+    <string name="twoplayer">2 Player</string>
+    <string name="computer">Computer</string>
+    <string name="settingstxt">Settings</string>
+</resources>

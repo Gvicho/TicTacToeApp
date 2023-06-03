@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tic_Tac_Toe_1</string>
+    <string name="choose_txt">Escolher :</string>
+    <string name="twoplayer">2 Jogadores:</string>
+    <string name="computer">Computador</string>
+    <string name="settingstxt">Configurações</string>
+</resources>
