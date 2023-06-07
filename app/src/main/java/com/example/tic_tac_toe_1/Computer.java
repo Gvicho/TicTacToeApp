@@ -11,27 +11,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ThemedSpinnerAdapter;
 import android.widget.Toast;
 
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+
 
 
 public class Computer extends AppCompatActivity {
 
-    private class ret{
+    public class ret{
         int i,j;
         ret(int i,int j){
             this.i = i;
             this.j = j;
         }
     }
-    private String S = "X";
-    private int s = 1,X=0,O=0;
-    int[][] board = new int[3][3];
-    int mooves = 0;
-    Map<Integer, Button> map = new HashMap<>();
+    public String S = "X";
+    public int s = 1,X=0,O=0;
+    public int[][] board = new int[3][3];
+    public int mooves = 0;
+    public Map<Integer, Button> map = new HashMap<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,7 @@ public class Computer extends AppCompatActivity {
         map.put(7,(Button)(findViewById(R.id.button7)));
         map.put(8,(Button)(findViewById(R.id.button8)));
         map.put(9,(Button)(findViewById(R.id.button9)));
+
     }
 
     public Boolean Check_if_won(int i,int j){
@@ -64,7 +66,9 @@ public class Computer extends AppCompatActivity {
         if(chk1||chk2)return true;
         return false;
     }
-
+    public interface MyCallback {
+        void onFirstMethodComplete();
+    }
     public void clean_board(){
         for(int i = 0;i<3;i++){
             for(int j=0;j<3;j++){
@@ -134,7 +138,51 @@ public class Computer extends AppCompatActivity {
         return ret1;
     }
 
-    public void click_xo(View v) throws InterruptedException {
+    public void o_move(){
+        S = "O";
+        s = -1;
+        ret a = dfs_game();
+        board[a.i][a.j] = s;
+        int btn_num = a.i * 3 +a.j +1;
+        Button btn = (map.get(btn_num));
+
+        btn.setText(S);
+        btn.setEnabled(false);
+        mooves++;
+
+        if(Check_if_won(a.i,a.j)){
+            Context context = getApplicationContext();
+            CharSequence text = S+"  Won !!!";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+
+            toast.show();
+
+            clean_board();
+            if(Objects.equals(S, "X"))X++;
+            else O++;
+            TextView neal = findViewById(R.id.neal);
+            neal.setText(X+" - "+O);
+
+            S="X"; s=1; mooves=0;
+            return;
+        }
+        if(mooves==9){
+            Context context = getApplicationContext();
+            CharSequence text = "Draw!!";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            clean_board();
+            S="X"; s=1; mooves = 0;
+            return;
+        }
+        S = "X";
+        s = 1;
+    }
+
+
+    public void click_xo(View v) {
         Button b = (Button)v;
         int I=0,J=0; mooves++;
         switch (b.getId()) {
@@ -197,45 +245,24 @@ public class Computer extends AppCompatActivity {
             S="X"; s=1; mooves = 0;
             return;
         }
-        S = "O";
-        s = -1;
-        ret a = dfs_game();
-        board[a.i][a.j] = s;
-        int btn_num = a.i * 3 +a.j +1;
-
-        Button btn = (map.get(btn_num));
-        btn.setText(S);
-        btn.setEnabled(false);
-        mooves++;
-        if(Check_if_won(a.i,a.j)){
-            Context context = getApplicationContext();
-            CharSequence text = S+"  Won !!!";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
-            clean_board();
-
-            if(Objects.equals(S, "X"))X++;
-            else O++;
-
-            TextView neal = findViewById(R.id.neal);
-            neal.setText(X+" - "+O);
-
-            S="X"; s=1; mooves=0;
-            return;
-        }
-        if(mooves==9){
-            Context context = getApplicationContext();
-            CharSequence text = "Draw!!";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-            clean_board();
-            S="X"; s=1; mooves = 0;
-            return;
-        }
-        S = "X";
-        s = 1;
+        Thread thread1 = new Thread(){
+            @Override
+            public void run(){
+                //I am using UI tread because o_move()
+                //interacts with UI
+                runOnUiThread(new Runnable() {
+                    public void run()
+                    {
+                        try {
+                            sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        o_move();
+                    }
+                });
+            }
+        };
+        thread1.start();
     }
 }
